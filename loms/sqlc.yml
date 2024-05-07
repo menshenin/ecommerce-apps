@@ -1,0 +1,18 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "./internal/repository/dborder/"
+    schema: "./migrations"
+    gen:
+      go:
+        package: "db"
+        out: "./internal/repository/dborder/db"
+        sql_package: "pgx/v5"
+  - engine: "postgresql"
+    queries: "./internal/repository/dbstock/"
+    schema: "./migrations"
+    gen:
+      go:
+        package: "db"
+        out: "./internal/repository/dbstock/db"
+        sql_package: "pgx/v5"

@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package gitlab.ozon.dev.max_lorriess.student_project.loms;
+
+option go_package = "gitlab.ozon.dev/max_lorriess/student-projec/loms/api/v1;loms";
+
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "LOMS Service";
+        version: "1.0.0";
+    };
+    host: "localhost:8080"
+    schemes: HTTP;
+    consumes: "application/json";
+    produces: "application/json";
+};
+
+
+service Loms {
+    rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {
+        option (google.api.http) = {
+            post: "/v1/create-order/{user_id}"
+            body: "*"
+        };
+    }
+    rpc OrderInfo(OrderInfoRequest) returns (OrderInfoResponse) {
+        option (google.api.http) = {
+            get: "/v1/order-info/{order_id}"
+        };
+    }
+    rpc OrderPay(OrderPayRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/v1/order-pay/{order_id}"
+        };
+    }
+    rpc OrderCancel(OrderCancelRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/v1/order-cancel/{order_id}"
+        };
+    }
+    rpc StocksInfo(StocksInfoRequest) returns (StocksInfoResponse) {
+        option (google.api.http) = {
+            get: "/v1/stocks-info/{sku}"
+        };
+    }
+}
+
+enum OrderStatus {
+    ORDER_STATUS_UNSPECIFIED = 0;
+    ORDER_STATUS_NEW = 1;
+    ORDER_STATUS_AWAITING_PAYMENT = 2;
+    ORDER_STATUS_FAILED = 3;
+    ORDER_STATUS_PAYED = 4;
+    ORDER_STATUS_CANCELLED = 5;
+}
+
+message Item {
+    uint32 sku = 1 [
+        (validate.rules).uint32.gt = 0
+    ];
+    uint32 count = 2 [
+        (validate.rules).uint32.gt = 0
+    ];
+}
+
+message CreateOrderRequest {
+    int64 user_id = 1 [
+        (validate.rules).int64.gt = 0
+    ];
+    repeated Item items = 2 [
+        (validate.rules).repeated.max_items = 1
+    ];
+}
+
+message CreateOrderResponse {
+    int64 order_id = 1;
+}
+
+message OrderInfoRequest {
+    int64 order_id = 1 [
+        (validate.rules).int64.gt = 0
+    ];
+}
+
+message OrderInfoResponse {
+    int64 user_id = 1;
+    OrderStatus status = 2;
+    repeated Item items = 3;
+}
+
+message OrderPayRequest {
+    int64 order_id = 1 [
+        (validate.rules).int64.gt = 0
+    ];
+}
+
+message OrderCancelRequest {
+    int64 order_id = 1 [
+        (validate.rules).int64.gt = 0
+    ];
+}
+
+message StocksInfoRequest {
+    int64 sku = 1 [
+        (validate.rules).int64.gt = 0
+    ];
+}
+
+message StocksInfoResponse {
+    int32 count = 1;
+}
